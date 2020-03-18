@@ -1,3 +1,6 @@
+import numpy as np
+from random import random
+
 class User:
     def __init__(self, name):
         self.name = name
@@ -38,16 +41,31 @@ class SocialGraph:
 
         The number of users must be greater than the average number of friendships.
         """
+        if avg_friendships > num_users:
+            print("Not enough users")
+            return
+
         # Reset graph
         self.last_id = 0
         self.users = {}
         self.friendships = {}
-        # !!!! IMPLEMENT ME
+        
+        # add users
+        for num in range(num_users):
+            self.add_user(num)
 
-        # Add users
-
-        # Create friendships
-
+        # add friendships
+        for user in self.users:
+            # sample number of friends from normal distribution
+            for i in range(int(np.random.normal(avg_friendships))):
+                # user cannot be friends with self or current friends
+                possible_friends = list(self.users.keys())
+                possible_friends.remove(user)
+                possible_friends = [x for x in possible_friends 
+                                    if x not in list(self.friendships[user])]
+                friend = np.random.choice(possible_friends)
+                self.add_friendship(user, friend)
+        
     def get_all_social_paths(self, user_id):
         """
         Takes a user's user_id as an argument
@@ -57,8 +75,26 @@ class SocialGraph:
 
         The key is the friend's ID and the value is the path.
         """
-        visited = {}  # Note that this is a dictionary, not a set
-        # !!!! IMPLEMENT ME
+        visited = dict()
+    
+
+        # Check each degree of separation, starting with user
+        layer = {user_id}
+        # loop until no new IDs found
+        another_round = True
+        while another_round:
+            next_layer = set()
+            another_round = False
+            for id in layer:
+                if id == user_id:
+                    visited[id] = [id]
+                friends = self.friendships[id]
+                next_layer.update(friends)
+                for friend in friends:
+                    if friend not in visited:
+                        another_round = True
+                        visited[friend] = visited[id] + [friend]
+            layer = next_layer
         return visited
 
 
