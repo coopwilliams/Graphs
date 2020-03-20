@@ -26,10 +26,86 @@ world.print_rooms()
 player = Player(world.starting_room)
 
 # Fill this out with directions to walk
-# traversal_path = ['n', 'n']
+
 traversal_path = []
 
+def traverse(path, room_graph, player):
+    revs = {'n':'s', 's':'n', 'w':'e', 'e':'w'}
+    visited = set()
+    current = player.current_room.id
+    path.append(current)
+    stack = []
+    history = []
+    stack.append((current, room_graph[current][1]))
+    prev_direction = 'x'
 
+    while len(visited) < 15:
+        room, options = stack.pop()
+        visited.add(room)
+        history.append((prev_direction, room))
+        print("\n---> ", room)
+        print(options.values())
+        if not all(options.values()) in visited:
+            for direction, id in options.items():
+                print("\t", direction, "->", id)
+                if not id in visited:
+                    # visited.add(id)
+                    path.append(direction)
+                    stack.append((id, room_graph[id][1]))
+                    prev_direction = direction
+        else:
+            while all(options.values()) in visited:
+                print("backtracking")
+                prev_direction, prev_room = history.pop()
+                if prev_direction == 'x':
+                    break
+                path.append(revs[prev_direction])
+                options = room_graph[prev_room][1]
+                
+        print(stack)
+
+def traversal(path, room_graph, player):
+    from random import random
+    revs = {'n':'s', 's':'n', 'w':'e', 'e':'w'}
+    clockwise_directions = ['n', 'e', 's', 'w']
+    backtrack_path = []
+    current = player.current_room.id
+    visited = {current}
+    while len(visited) < 500:
+        # get dictionary of neighboring rooms
+        options = room_graph[current][1]
+
+        # choose a direction 
+        choice = None
+        backtracking = False
+        for way in clockwise_directions:
+            # pick first unvisited neighbor, moving clockwise
+            if (way in options.keys()) and (options[way] not in visited):
+                choice = way
+                break
+        
+        # if all neighbors are visited, backtrack a step.
+        if choice == None:
+            backtracking = True
+            choice = revs[backtrack_path.pop()]
+
+        # make the move
+        current = options[choice]
+        # mark the new room as visited
+        visited.add(current)
+        # keep track of your path
+        path.append(choice)
+        # if we're not backtracking, add to the backtrack path
+        if not backtracking:
+            print("\t-->", current)
+            backtrack_path.append(choice)
+        else:
+            print(current, "<---")
+        
+
+traversal(traversal_path, room_graph, player)
+
+print("length is:", len(traversal_path))
 
 # TRAVERSAL TEST
 visited_rooms = set()
@@ -46,7 +122,7 @@ else:
     print("TESTS FAILED: INCOMPLETE TRAVERSAL")
     print(f"{len(room_graph) - len(visited_rooms)} unvisited rooms")
 
-
+exit()
 
 #######
 # UNCOMMENT TO WALK AROUND
