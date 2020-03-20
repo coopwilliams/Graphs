@@ -29,30 +29,45 @@ player = Player(world.starting_room)
 
 traversal_path = []
 
-def traversal(path, room_graph, player):
-    from random import random
+def traversal(path, room_graph, player, world):
+    import random
+    from time import sleep
     revs = {'n':'s', 's':'n', 'w':'e', 'e':'w'}
     clockwise_directions = ['n', 'e', 's', 'w']
     backtrack_path = []
+    backtrack_rooms = []
     current = player.current_room.id
     visited = {current}
     while len(visited) < 500:
         # get dictionary of neighboring rooms
         options = room_graph[current][1]
 
+        # optional: sort dictionary by decreasing room id
+        options = {k: v for k, v in sorted(options.items(), key=lambda i: i[1], reverse=True)}
+
         # choose a direction 
         choice = None
         backtracking = False
+
+        # choose directions going clockwise
         for way in clockwise_directions:
             # pick first unvisited neighbor, moving clockwise
             if (way in options.keys()) and (options[way] not in visited):
                 choice = way
                 break
-        
+
+        # optional for loop: choose highest numbered neighbor
+        for way, neighbor in options.items():
+            # pick largest unvisited neighbor
+            if neighbor not in visited:
+                choice = way
+                break
+
         # if all neighbors are visited, backtrack a step.
         if choice == None:
             backtracking = True
             choice = revs[backtrack_path.pop()]
+            backtrack_rooms.pop()
 
         # make the move
         current = options[choice]
@@ -64,11 +79,15 @@ def traversal(path, room_graph, player):
         if not backtracking:
             print("\t-->", current)
             backtrack_path.append(choice)
+            backtrack_rooms.append(current)
         else:
             print(current, "<---")
+        world.print_rooms(visited=visited, backtrack=backtrack_rooms)
+        print(len(path))
+        sleep(.1)
         
 
-traversal(traversal_path, room_graph, player)
+traversal(traversal_path, room_graph, player, world)
 
 print("length is:", len(traversal_path))
 

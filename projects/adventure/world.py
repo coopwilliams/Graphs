@@ -34,7 +34,7 @@ class World:
                 self.rooms[room_id].connect_rooms('w', self.rooms[room_graph[room_id][1]['w']])
         self.starting_room = self.rooms[0]
 
-    def print_rooms(self):
+    def print_rooms(self, visited=set(), backtrack=[]):
         rotated_room_grid = []
         for i in range(0, len(self.room_grid)):
             rotated_room_grid.append([None] * len(self.room_grid))
@@ -67,7 +67,13 @@ class World:
                 else:
                     str += " "
                 if room is not None:
-                    str += f"{room.id}".zfill(3)
+                    if room.id in backtrack:
+                        str += f"▒▒▒".zfill(3)
+                    else:
+                        if room.id not in visited:
+                            str += f"{room.id}".zfill(3)
+                        else:
+                            str += f"███".zfill(3)
                 else:
                     str += "   "
                 if room is not None and room.e_to is not None:
