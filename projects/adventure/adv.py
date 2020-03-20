@@ -29,41 +29,6 @@ player = Player(world.starting_room)
 
 traversal_path = []
 
-def traverse(path, room_graph, player):
-    revs = {'n':'s', 's':'n', 'w':'e', 'e':'w'}
-    visited = set()
-    current = player.current_room.id
-    path.append(current)
-    stack = []
-    history = []
-    stack.append((current, room_graph[current][1]))
-    prev_direction = 'x'
-
-    while len(visited) < 15:
-        room, options = stack.pop()
-        visited.add(room)
-        history.append((prev_direction, room))
-        print("\n---> ", room)
-        print(options.values())
-        if not all(options.values()) in visited:
-            for direction, id in options.items():
-                print("\t", direction, "->", id)
-                if not id in visited:
-                    # visited.add(id)
-                    path.append(direction)
-                    stack.append((id, room_graph[id][1]))
-                    prev_direction = direction
-        else:
-            while all(options.values()) in visited:
-                print("backtracking")
-                prev_direction, prev_room = history.pop()
-                if prev_direction == 'x':
-                    break
-                path.append(revs[prev_direction])
-                options = room_graph[prev_room][1]
-                
-        print(stack)
-
 def traversal(path, room_graph, player):
     from random import random
     revs = {'n':'s', 's':'n', 'w':'e', 'e':'w'}
